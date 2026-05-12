@@ -456,6 +456,106 @@
     background: linear-gradient(90deg, transparent, var(--brass-dark), transparent);
   }
 
+  /* VP Tracker */
+  .vp-card { margin-top: 20px; }
+  .vp-totals {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 18px;
+    align-items: center;
+    padding: 14px 10px;
+    border-bottom: 1px dashed rgba(201,162,90,0.25);
+    margin-bottom: 14px;
+  }
+  .vp-side { text-align: center; }
+  .vp-side.atk .vp-num { color: var(--rust-bright); }
+  .vp-side.def .vp-num { color: var(--steel-bright); }
+  .vp-side .vp-role {
+    font-family: 'Special Elite', monospace; font-size: 10px;
+    letter-spacing: 0.22em; text-transform: uppercase; color: var(--brass);
+  }
+  .vp-side .vp-army {
+    font-family: 'Spectral', serif; font-style: italic; font-size: 12px;
+    color: var(--bone); opacity: 0.75; margin: 2px 0 4px;
+  }
+  .vp-side .vp-num {
+    font-family: 'Black Ops One', cursive; font-size: 38px; line-height: 1;
+    text-shadow: 0 2px 0 #000;
+  }
+  .vp-lead {
+    font-family: 'Special Elite', monospace; font-size: 11px;
+    letter-spacing: 0.18em; text-transform: uppercase; text-align: center;
+    min-width: 110px;
+  }
+  .vp-lead.atk { color: var(--rust-bright); }
+  .vp-lead.def { color: var(--steel-bright); }
+  .vp-lead.even { color: var(--brass); }
+
+  .vp-rounds { display: flex; flex-direction: column; gap: 6px; }
+  .vp-round-row {
+    display: grid;
+    grid-template-columns: 56px 1fr 1fr 32px;
+    gap: 8px; align-items: stretch;
+  }
+  .vp-rd-label {
+    font-family: 'Black Ops One', cursive; font-size: 12px;
+    letter-spacing: 0.12em; color: var(--brass);
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(217,200,163,0.04);
+    border: 1px solid rgba(201,162,90,0.18);
+  }
+  .vp-cell {
+    display: grid;
+    grid-template-columns: 28px 1fr 28px;
+    background: rgba(0,0,0,0.25);
+    border: 1px solid rgba(201,162,90,0.18);
+  }
+  .vp-cell.atk { border-left: 3px solid var(--rust); }
+  .vp-cell.def { border-left: 3px solid var(--steel); }
+  .vp-cell .vp-val {
+    font-family: 'Black Ops One', cursive; font-size: 18px;
+    color: var(--bone); text-align: center; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .vp-btn {
+    background: transparent; border: 0; cursor: pointer;
+    font-family: 'Black Ops One', cursive; font-size: 14px;
+    color: var(--brass); transition: background 0.15s ease;
+  }
+  .vp-btn:hover { background: rgba(201,162,90,0.12); color: var(--brass-bright); }
+  .vp-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .vp-rm {
+    background: transparent; border: 1px solid rgba(139,46,31,0.45);
+    color: var(--rust-bright); cursor: pointer;
+    font-family: 'Special Elite', monospace; font-size: 14px;
+  }
+  .vp-rm:hover:not(:disabled) { background: rgba(196,69,47,0.15); border-color: var(--rust-bright); }
+  .vp-rm:disabled { opacity: 0.25; cursor: not-allowed; }
+
+  .vp-actions {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px; margin-top: 14px;
+  }
+  .vp-add, .vp-reset {
+    padding: 10px;
+    font-family: 'Special Elite', monospace; font-size: 11px;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    background: transparent; cursor: pointer; transition: all 0.15s ease;
+  }
+  .vp-add { border: 1px solid rgba(201,162,90,0.4); color: var(--brass); }
+  .vp-add:hover:not(:disabled) { background: rgba(201,162,90,0.1); border-color: var(--brass-bright); color: var(--brass-bright); }
+  .vp-add:disabled { opacity: 0.35; cursor: not-allowed; }
+  .vp-reset { border: 1px solid rgba(139,46,31,0.5); color: var(--rust-bright); }
+  .vp-reset:hover { background: rgba(196,69,47,0.15); border-color: var(--rust-bright); }
+
+  .vp-foot {
+    margin-top: 12px; padding-top: 10px;
+    border-top: 1px dashed rgba(201,162,90,0.2);
+    font-family: 'Special Elite', monospace; font-size: 10px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--brass); opacity: 0.6; text-align: center;
+  }
+
   @media (max-width: 1100px) {
     .app { grid-template-columns: 1fr; }
     .controls { position: static; max-height: none; border-right: none; border-bottom: 1px solid rgba(201,162,90,0.18); }
@@ -915,8 +1015,11 @@
     armyB: ARMIES[0].list[1],
     weatherOn: false,
     terrainCount: 10,
-    generated: null
+    generated: null,
+    vpTracker: { rounds: [{ atk: 0, def: 0 }] }
   };
+
+  function emptyVpTracker() { return { rounds: [{ atk: 0, def: 0 }] }; }
 
   // ---------------------------------------------------------------------
   // CONTROL WIRING
@@ -938,7 +1041,11 @@
       sel.appendChild(og);
     });
     sel.value = state.scenarioId;
-    sel.addEventListener('change', e => { state.scenarioId = e.target.value; });
+    sel.addEventListener('change', e => {
+      state.scenarioId = e.target.value;
+      state.vpTracker = emptyVpTracker();
+      if (state.generated && document.getElementById('vpTrackerHost')) mountVpTracker();
+    });
   }
 
   function buildArmySelects() {
@@ -1513,6 +1620,84 @@
   }
 
   // ---------------------------------------------------------------------
+  // VP TRACKER
+  // ---------------------------------------------------------------------
+  function mountVpTracker() {
+    const host = document.getElementById('vpTrackerHost');
+    if (!host) return;
+    const g = state.generated;
+    const rounds = state.vpTracker.rounds;
+    const totA = rounds.reduce((s, r) => s + r.atk, 0);
+    const totD = rounds.reduce((s, r) => s + r.def, 0);
+    const diff = Math.abs(totA - totD);
+    const leadCls = totA === totD ? 'even' : (totA > totD ? 'atk' : 'def');
+    const leadText = totA === totD
+      ? 'Even Match'
+      : `${totA > totD ? 'Attacker' : 'Defender'} leads by ${diff}`;
+
+    const roundsHtml = rounds.map((r, i) => `
+      <div class="vp-round-row">
+        <div class="vp-rd-label">Rd ${i + 1}</div>
+        <div class="vp-cell atk">
+          <button class="vp-btn" data-vp-act="step" data-idx="${i}" data-side="atk" data-delta="-1" aria-label="Attacker minus">&minus;</button>
+          <div class="vp-val">${r.atk}</div>
+          <button class="vp-btn" data-vp-act="step" data-idx="${i}" data-side="atk" data-delta="1" aria-label="Attacker plus">+</button>
+        </div>
+        <div class="vp-cell def">
+          <button class="vp-btn" data-vp-act="step" data-idx="${i}" data-side="def" data-delta="-1" aria-label="Defender minus">&minus;</button>
+          <div class="vp-val">${r.def}</div>
+          <button class="vp-btn" data-vp-act="step" data-idx="${i}" data-side="def" data-delta="1" aria-label="Defender plus">+</button>
+        </div>
+        <button class="vp-rm" data-vp-act="remove" data-idx="${i}" ${rounds.length <= 1 ? 'disabled' : ''} aria-label="Remove round">&times;</button>
+      </div>`).join('');
+
+    host.innerHTML = `
+      <div class="vp-totals">
+        <div class="vp-side atk">
+          <div class="vp-role">Attacker</div>
+          <div class="vp-army">${escape(g.armyA)}</div>
+          <div class="vp-num">${totA}</div>
+        </div>
+        <div class="vp-lead ${leadCls}">${leadText}</div>
+        <div class="vp-side def">
+          <div class="vp-role">Defender</div>
+          <div class="vp-army">${escape(g.armyB)}</div>
+          <div class="vp-num">${totD}</div>
+        </div>
+      </div>
+      <div class="vp-rounds">${roundsHtml}</div>
+      <div class="vp-actions">
+        <button class="vp-add" data-vp-act="add" ${rounds.length >= 9 ? 'disabled' : ''}>+ Add Round</button>
+        <button class="vp-reset" data-vp-act="reset">Reset</button>
+      </div>
+      <div class="vp-foot">Refer to Victory Conditions above for the win threshold</div>
+    `;
+
+    host.onclick = handleVpClick;
+  }
+
+  function handleVpClick(e) {
+    const btn = e.target.closest('[data-vp-act]');
+    if (!btn) return;
+    const act = btn.dataset.vpAct;
+    const rounds = state.vpTracker.rounds;
+    if (act === 'step') {
+      const i = +btn.dataset.idx;
+      const side = btn.dataset.side;
+      const delta = +btn.dataset.delta;
+      rounds[i][side] = Math.max(0, rounds[i][side] + delta);
+    } else if (act === 'add') {
+      if (rounds.length < 9) rounds.push({ atk: 0, def: 0 });
+    } else if (act === 'remove') {
+      const i = +btn.dataset.idx;
+      if (rounds.length > 1) rounds.splice(i, 1);
+    } else if (act === 'reset') {
+      state.vpTracker = emptyVpTracker();
+    }
+    mountVpTracker();
+  }
+
+  // ---------------------------------------------------------------------
   // RENDER (top-level)
   // ---------------------------------------------------------------------
   function render() {
@@ -1530,6 +1715,10 @@
 
     const sc = g.scenario;
     view.innerHTML = `
+      <section class="info-card vp-card" style="margin-bottom:20px;">
+        <h3>VP Tracker</h3>
+        <div id="vpTrackerHost"></div>
+      </section>
       <div class="map-card">
         <div class="map-header">
           <div>
@@ -1547,6 +1736,7 @@
       ${renderInfoPanel()}
     `;
 
+    mountVpTracker();
     $('#rerollTerrainBtn').disabled = false;
     $('#rerollWeatherBtn').disabled = !state.weatherOn;
   }
