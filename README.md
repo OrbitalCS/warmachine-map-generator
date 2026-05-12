@@ -2,7 +2,7 @@
 
 A single-file battlefield map generator for **Warmachine Mk IV** tabletop games. Pick a scenario, pick two armies, hit deploy, and get a complete tactical brief: deployment zones, scenario elements at the correct distances, randomly placed terrain that respects Mk IV spacing rules, weather conditions, and a terrain legend listing the in-game effects of every piece on the table.
 
-**Live site:** https://yourname.github.io/warmachine-battlefield/
+**Live site:** https://orbitalcs.github.io/warmachine-map-generator/
 
 ## Features
 
